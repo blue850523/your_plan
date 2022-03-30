@@ -72,7 +72,7 @@
 	import { ElMessageBox } from 'element-plus'
 	import TicketModel from "./components/ticket_modal.vue"
 	import StatusModel from "./components/status_modal.vue"
-	import { ref, watch } from "vue"
+	import { onMounted, ref, watch } from "vue"
 	const status = ref([
 		"待辦事項", "進行中", "已完成"
 	]);
@@ -81,18 +81,18 @@
 	]);
 	const tickets = ref([]);
 
-	localStorage.setItem("status", JSON.stringify(status.value));
-	localStorage.setItem("tickets", JSON.stringify(tickets.value));
-	if (localStorage.getItem("status"))
-		status.value = JSON.parse(localStorage.getItem("status"));
-	if (localStorage.getItem("tickets"))
-		tickets.value = JSON.parse(localStorage.getItem("tickets"));
+	onMounted(() => {
+		if (localStorage.getItem("status"))
+			status.value = JSON.parse(localStorage.getItem("status"));
+		if (localStorage.getItem("tickets"))
+			tickets.value = JSON.parse(localStorage.getItem("tickets"));
+	})
 	watch(status, (newValue, oldValue) => {
 		localStorage.setItem("status", JSON.stringify(status.value));
-    }, { deep: true });
+	}, { deep: true });
 	watch(tickets, (newValue, oldValue) => {
 		localStorage.setItem("tickets", JSON.stringify(tickets.value));
-    }, { deep: true });
+	}, { deep: true });
 
 	const ticket_modal_is_open = ref(false);
 	const ticket_modal_is_create = ref(true);
