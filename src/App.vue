@@ -196,7 +196,8 @@ body {
 	display: flex;
     align-items: center;
     justify-content: flex-end;
-	height: var(--header-hight);
+	flex-wrap: wrap;
+	min-height: var(--header-hight);
     padding: 0 .5rem;
 	background: #cccccc;
 }
