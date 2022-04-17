@@ -143,6 +143,7 @@
 	function handle_status_modal_close () {
 		status_modal_is_open.value = false;
 	}
+	
 	function getTicket (list_id) {
 		return tickets.value.filter((it) => it.list == list_id);
 	}

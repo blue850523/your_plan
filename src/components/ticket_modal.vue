@@ -41,14 +41,19 @@
 		}
 	});
 	const emit = defineEmits(["ticket_add", "ticket_save", "ticket_delete", "modal_close"]);
-	const data = ref({});
+	const data = ref({
+		title: "",
+		remark: "",
+	});
 	const title_error = ref(false);
 
 	watchEffect(() => {
+		if (props.is_create) return;
 		data.value = JSON.parse(JSON.stringify(props.data));
 	});
 
 	function handle_modal_save () {
+		console.log(data.value);
 		if (data.value.title.length === 0) {
 			title_error.value = true;
 		} else {
@@ -65,7 +70,10 @@
 		reset();
 	}
 	function reset () {
-		data.value = {};
+		data.value = {
+			title: "",
+			remark: "",
+		};
         title_error.value = false;
     }
 </script>
