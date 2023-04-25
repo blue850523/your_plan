@@ -69,7 +69,7 @@
 
 <script setup>
 	import { InfoFilled, Edit, Check, Delete } from '@element-plus/icons-vue'
-	import { ElMessageBox } from 'element-plus'
+	import { ElMessageBox, ElMessage } from 'element-plus'
 	import TicketModel from "./components/ticket_modal.vue"
 	import StatusModel from "./components/status_modal.vue"
 	import { onMounted, ref, watch } from "vue"
@@ -80,12 +80,15 @@
 		false, false, false
 	]);
 	const tickets = ref([]);
+	const ticket_next_id = ref(1);
 
 	onMounted(() => {
 		if (localStorage.getItem("status"))
 			status.value = JSON.parse(localStorage.getItem("status"));
 		if (localStorage.getItem("tickets"))
 			tickets.value = JSON.parse(localStorage.getItem("tickets"));
+		if (localStorage.getItem("ticket_next_id"))
+			ticket_next_id.value = JSON.parse(localStorage.getItem("ticket_next_id"));
 	})
 	watch(status, (newValue, oldValue) => {
 		localStorage.setItem("status", JSON.stringify(status.value));
@@ -93,20 +96,23 @@
 	watch(tickets, (newValue, oldValue) => {
 		localStorage.setItem("tickets", JSON.stringify(tickets.value));
 	}, { deep: true });
+	watch(ticket_next_id, (newValue, oldValue) => {
+		localStorage.setItem("ticket_next_id", JSON.stringify(ticket_next_id.value));
+	}, { deep: true });
 
 	const ticket_modal_is_open = ref(false);
 	const ticket_modal_is_create = ref(true);
 	const ticket_modal_data = ref({});
 	function ticket_modal_open (is_create = true, data = {}) {
 		ticket_modal_is_open.value = true;
-		if (!is_create) {
-			ticket_modal_data.value = data;
-			ticket_modal_is_create.value = false;
-		}
+		
+		if (is_create) return;
+		ticket_modal_data.value = data;
+		ticket_modal_is_create.value = false;
 	}
 	function handle_ticket_add (data) {
 		handle_ticket_modal_close();
-		const id = tickets.value.length + 1;
+		const id = ticket_next_id.value;
 		const ticket = {
 			id: id,
 			title: data.title,
@@ -114,6 +120,7 @@
 			list: 1
 		}
 		tickets.value.push(ticket);
+		ticket_next_id.value += 1;
 	}
 	function handle_ticket_save (data) {
 		handle_ticket_modal_close();
@@ -143,7 +150,7 @@
 	function handle_status_modal_close () {
 		status_modal_is_open.value = false;
 	}
-	
+ 
 	function getTicket (list_id) {
 		return tickets.value.filter((it) => it.list == list_id);
 	}
@@ -160,6 +167,11 @@
 	}
 	function clean_tickets () {
 		tickets.value = [];
+		ticket_next_id.value = 1;
+		ElMessage({
+			message: '事項清空成功！',
+			type: 'success',
+		});
 	}
 	function delete_status (index) {
 		ElMessageBox.confirm("確定要刪除此狀態嗎？底下所有事項也將會被清除！", "刪除",{
@@ -167,9 +179,13 @@
 			cancelButtonText: '取消',
 			type: 'warning',
 		}).then(() => {
+			tickets.value = tickets.value.filter(it => it.list !== index + 1);
 			status.value.splice(index, 1);
 			status_editing.value.splice(index, 1);
-			tickets.value = tickets.value.filter(it => it.id !== index + 1);
+			ElMessage({
+				message: '狀態刪除成功！',
+				type: 'success',
+			});
 		}).catch(() => {
 			return	
 		});

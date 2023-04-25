@@ -53,7 +53,6 @@
 	});
 
 	function handle_modal_save () {
-		console.log(data.value);
 		if (data.value.title.length === 0) {
 			title_error.value = true;
 		} else {
